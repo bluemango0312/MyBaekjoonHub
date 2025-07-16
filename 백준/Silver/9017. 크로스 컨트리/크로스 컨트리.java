@@ -125,10 +125,8 @@ public class Main {
 					minScore = addScore.get(i);
 					minTeam = i;
 					sameScoreCnt.clear();
+					sameScoreCnt.add(i);
 				} else if (minScore == addScore.get(i)) {
-					if (!sameScoreCnt.contains(minTeam)) {
-						sameScoreCnt.add(minTeam);
-					}
 					sameScoreCnt.add(i);
 				}
 			}
