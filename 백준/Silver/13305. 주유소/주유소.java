@@ -18,7 +18,7 @@ public class Main {
 		Scanner sc = new Scanner(System.in);
 
 		int cityCnt = sc.nextInt();
-		int[] cityCost = new int[cityCnt];
+		long[] cityCost = new long[cityCnt];
 		int[] loadLength = new int[cityCnt - 1];
 		
 		for (int i = 0; i < cityCnt - 1; i++) {
@@ -33,7 +33,7 @@ public class Main {
 		int currentIndex = 0;
 		int nextIndex = 1;
 		int loadIndex = 1;
-		int resultCost = cityCost[0] * loadLength[0];
+		long resultCost = cityCost[0] * loadLength[0];
 
 		while (loadIndex < cityCnt - 1 && nextIndex < cityCnt && currentIndex < cityCnt) {
 //			System.out.println("=================================");
@@ -52,6 +52,7 @@ public class Main {
 				nextIndex++;
 				loadIndex++;
 			}
+
 		}
 
 		System.out.println(resultCost);
