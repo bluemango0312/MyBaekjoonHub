@@ -36,13 +36,19 @@ public class Main {
 		int resultCost = cityCost[0] * loadLength[0];
 
 		while (loadIndex < cityCnt - 1 && nextIndex < cityCnt && currentIndex < cityCnt) {
+//			System.out.println("=================================");
+//			System.out.println("current: " +cityCost[currentIndex]);
+//			System.out.println("next: " +cityCost[nextIndex]);
+//			System.out.println("load: " +loadLength[loadIndex]);
+//			System.out.println("resultCost: " +resultCost);
+
 			if (cityCost[currentIndex] <= cityCost[nextIndex]) {
 				resultCost += cityCost[currentIndex] * loadLength[loadIndex];
 				nextIndex++;
 				loadIndex++;
 			} else {
 				resultCost += cityCost[nextIndex] * loadLength[loadIndex];
-				currentIndex += nextIndex;
+				currentIndex = nextIndex;
 				nextIndex++;
 				loadIndex++;
 			}
