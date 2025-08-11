@@ -1,0 +1,37 @@
+name: Update README
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - "code/**"
+      - "review/**"
+      - "README.template.md"
+      - "scripts/**"
+  schedule:
+    - cron: "15 0 * * *"  # KST 오전 9:15에 맞추려면 cron은 UTC 기준(0시=KST 09시)
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # git 로그로 날짜 뽑으려면 전체 히스토리 필요
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Generate README
+        run: python scripts/build_readme.py
+      - name: Commit & Push if changed
+        run: |
+          if ! git diff --quiet README.md; then
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git config user.name "github-actions[bot]"
+            git add README.md
+            git commit -m "chore: auto-update dashboard [skip ci]"
+            git push
+          fi
