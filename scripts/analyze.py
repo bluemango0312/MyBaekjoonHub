@@ -23,8 +23,10 @@ ALLOWED_EXT = (".java", ".kt", ".py", ".cpp", ".c", ".cc")
 TIER_NAMES = {"Bronze":"B", "Silver":"S", "Gold":"G", "Platinum":"P", "Diamond":"D"}
 TIER_SCORE = {"Bronze":1, "Silver":2, "Gold":3, "Platinum":4, "Diamond":5}
 
-ID_PAT = re.compile(r'(?P<id>\d{3,6})')
-TITLE_PAT = re.compile(r'^\s*\d{3,6}[.\s_-]*(.*)$')
+# 제목/ID 추출용 정규식
+ID_PAT    = re.compile(r'(?P<id>\d{3,6})', re.UNICODE)
+# 숫자 다음 임의의 구분자들 이후를 제목으로 간주 (전각 포함)
+TITLE_PAT = re.compile(r'^\s*\d{3,6}\D+(.*)$', re.UNICODE)
 
 ALGOS = {
     "BFS": [r"Queue<", r"ArrayDeque<", r"LinkedList<", r"\.offer\(", r"while\s*\(\s*!\s*queue\.isEmpty\("],
@@ -43,8 +45,25 @@ ALGOS = {
 # 파스텔 팔레트
 PALETTE = ["#CFE3FF", "#AFCBFF", "#8FB5FF", "#6D9EFF", "#4D86F5", "#2E6DDB"]
 
+# 영어 알고리즘 키 → 한글 라벨
+ALGO_LABELS = {
+    "BFS":"BFS", "DFS":"DFS", "DP":"DP", "BinarySearch":"이분탐색",
+    "TwoPointers":"투포인터", "Greedy":"그리디", "StackQueue":"스택/큐",
+    "Heap":"힙", "Sorting":"정렬", "Graph":"그래프", "Tree":"트리"
+}
+
+def _normalize(s: str) -> str:
+    """전각 기호/제로폭 공백 제거 및 기본 정리"""
+    if not s:
+        return ""
+    return (
+        s.replace("（","(").replace("）",")").replace("．",".")
+         .replace("\u200b","").replace("\u2009"," ").replace("\u200a"," ")
+         .replace("\u2002"," ").replace("\u2003"," ").replace("\u2060","").replace("\ufeff","")
+         .strip()
+    )
+
 def quickchart_svg(cfg: dict, w=360, h=140):
-    from urllib.parse import quote
     return (
         "https://quickchart.io/chart"
         f"?c={quote(json.dumps(cfg, ensure_ascii=False))}"
@@ -62,16 +81,8 @@ def base_opts():
         }
     }
 
-# 영어 알고리즘 키 → 한글 라벨
-ALGO_LABELS = {
-    "BFS":"BFS", "DFS":"DFS", "DP":"DP", "BinarySearch":"이분탐색",
-    "TwoPointers":"투포인터", "Greedy":"그리디", "StackQueue":"스택/큐",
-    "Heap":"힙", "Sorting":"정렬", "Graph":"그래프", "Tree":"트리"
-}
-
-
 def build_charts(month_counts, cum_points, algo_counts, hour_counts):
-    # 월별 추이
+    # 1) 월별 추이
     labels = list(month_counts.keys()); data = list(month_counts.values())
     monthly_line = {
         "type": "line",
@@ -82,9 +93,8 @@ def build_charts(month_counts, cum_points, algo_counts, hour_counts):
         "options": base_opts()
     }
 
-    # 누적
-    c_labels = [p[0] for p in cum_points]
-    c_data = [p[1] for p in cum_points]
+    # 2) 누적
+    c_labels = [p[0] for p in cum_points]; c_data = [p[1] for p in cum_points]
     cumulative_line = {
         "type": "line",
         "data": {"labels": c_labels, "datasets": [{
@@ -93,22 +103,20 @@ def build_charts(month_counts, cum_points, algo_counts, hour_counts):
         }]},
         "options": base_opts()
     }
-
-    # ✅ Y축 완전 숨김 (Chart.js v3)
+    # Y축 완전 숨김 (겹침 방지)
     cum_opt = cumulative_line["options"]
     cum_opt["scales"]["y"]["display"] = False
     cum_opt["scales"]["y"]["ticks"]["display"] = False
     cum_opt["scales"]["y"]["grid"]["display"] = False
     cum_opt["layout"]["padding"] = {"left": 6, "right": 6, "top": 6, "bottom": 2}
-
-    # ✅ 호환용(혹시 v2로 렌더될 때)
+    # 호환용(v2)
     cum_opt["scales"]["yAxes"] = [{
         "display": False,
         "ticks": {"display": False},
         "gridLines": {"display": False}
     }]
 
-    # 알고리즘 상위 분포(가로 막대)
+    # 3) 알고리즘 상위 분포(가로 막대)
     a_labels_en = list(algo_counts.keys())
     a_labels_ko = [ALGO_LABELS.get(k, k) for k in a_labels_en]
     a_data = list(algo_counts.values())
@@ -121,7 +129,7 @@ def build_charts(month_counts, cum_points, algo_counts, hour_counts):
         "options": {**base_opts(), "indexAxis": "y"}
     }
 
-    # 시간대 분포
+    # 4) 시간대 분포
     hours = [str(h) for h in range(24)]; h_data = [hour_counts.get(h, 0) for h in range(24)]
     hour_bar = {
         "type": "bar",
@@ -132,13 +140,12 @@ def build_charts(month_counts, cum_points, algo_counts, hour_counts):
         "options": base_opts()
     }
 
-    # 각 차트는 카드 절반 폭 기준(작게)
     return {
         "monthly_line": quickchart_svg(monthly_line, w=360, h=140),
         "cumulative_line": quickchart_svg(cumulative_line, w=360, h=140),
         "algo_bar": quickchart_svg(algo_bar, w=360, h=180),
         "hour_bar": quickchart_svg(hour_bar, w=360, h=140),
-        # 추가: 작은 버전
+        # 작은 버전(가로 배치용)
         "monthly_line_small": quickchart_svg(monthly_line, w=250, h=130),
         "cumulative_line_small": quickchart_svg(cumulative_line, w=250, h=130),
     }
@@ -185,45 +192,77 @@ def git_date(path: Path):
     return datetime.datetime.fromtimestamp(ts) if ts else None
 
 def extract_id_title(name: str):
-    base = Path(name).stem
-    m_id = ID_PAT.search(base); prob_id = m_id.group("id") if m_id else None
-    m_title = TITLE_PAT.match(base); title = m_title.group(1).strip() if m_title else base
+    """파일명 또는 폴더명에서 문제 ID와 제목 추출"""
+    base = _normalize(Path(name).stem)
+
+    m_id = ID_PAT.search(base)
+    prob_id = m_id.group("id") if m_id else None
+
+    m_title = TITLE_PAT.match(base)
+    title = _normalize(m_title.group(1)) if m_title else None
+
+    # 폴백: 숫자 제거한 나머지, 그래도 없으면 base 자체
+    if not title:
+        stripped = _normalize(re.sub(r'^\s*\d{3,6}\D+', '', base))
+        title = stripped or base
+
     return prob_id, title
 
 def find_tier_from_parts(parts):
     for p in parts:
         key = p.split()[0].strip()
-        if key in TIER_NAMES: return TIER_NAMES[key], key
+        if key in TIER_NAMES:
+            return TIER_NAMES[key], key
     return None, None
 
 def score_algorithms(text: str):
     hits = Counter()
     for tag, pats in ALGOS.items():
         for pat in pats:
-            if re.search(pat, text): hits[tag]+=1; break
+            if re.search(pat, text):
+                hits[tag] += 1
+                break
     return hits
 
 def walk_solutions():
     items = []
     for root, _, files in os.walk(BASE):
         root_posix = Path(root).as_posix()
-        if any(skip in root_posix for skip in ["/.git","/.github","/venv","/.venv","/__pycache__"]): continue
+        if any(skip in root_posix for skip in ["/.git","/.github","/venv","/.venv","/__pycache__"]):
+            continue
+
         rel_parts = Path(root).relative_to(BASE).parts
         tier_letter, tier_word = find_tier_from_parts(rel_parts)
+
         collected = False
         for fn in files:
-            if not fn.endswith(ALLOWED_EXT): continue
+            if not fn.endswith(ALLOWED_EXT):
+                continue
+
             prob_id, title = extract_id_title(fn)
-            if not prob_id and rel_parts: prob_id, title = extract_id_title(rel_parts[-1])
-            if not prob_id: continue
+
+            # 파일명에서 못 찾으면 상위 폴더명으로 보강
+            if (not prob_id or not title) and rel_parts:
+                pid2, title2 = extract_id_title(rel_parts[-1])
+                prob_id = prob_id or pid2
+                # 제목 비면 폴더명을 제목으로
+                if not title:
+                    title = _normalize(Path(rel_parts[-1]).stem)
+
+            # ID 없으면 스킵
+            if not prob_id:
+                continue
+
             file_path = Path(root, fn)
             d = git_date(file_path) or datetime.datetime.min
+
             algo_hits = Counter()
             try:
                 text = file_path.read_text(encoding="utf-8", errors="ignore")
                 algo_hits = score_algorithms(text)
             except Exception:
                 pass
+
             items.append({
                 "path": file_path.relative_to(BASE).as_posix(),
                 "file": fn,
@@ -237,18 +276,22 @@ def walk_solutions():
                 "lang": file_path.suffix.lstrip(".").lower()
             })
             collected = True
+
+        # 폴더만 있고 파일이 없을 때 폴더 기준으로 한 줄 남기기
         if not collected and rel_parts:
             folder_name = rel_parts[-1]
             prob_id, title = extract_id_title(folder_name)
-            if not prob_id: continue
-            folder = Path(root); readme = folder / "README.md"
+            if not prob_id:
+                continue
+            folder = Path(root)
+            readme = folder / "README.md"
             target = readme if readme.exists() else folder
             d = git_date(target) or datetime.datetime.min
             items.append({
                 "path": target.relative_to(BASE).as_posix(),
                 "file": target.name if target.is_file() else "",
                 "id": prob_id,
-                "title": title,
+                "title": title or _normalize(Path(folder_name).stem),
                 "tier_code": tier_letter or "U",
                 "tier": tier_word or "Unknown",
                 "date": d,
@@ -272,7 +315,9 @@ def render_table(items, n=10):
     for it in items[:n]:
         link = f"[📄]({it['path']})" if it["path"] else "-"
         date_str = it["date"].strftime("%Y-%m-%d") if it["date"] != datetime.datetime.min else "-"
-        title = (it.get("title") or "").replace("|","¦")
+        title = (it.get("title") or "").replace("|","¦").strip()
+        if not title:
+            title = f"BOJ {it['id']}"
         rows.append(f"| {it['id']} | {title} | {it['tier']} | {link} | {date_str} |")
     return "\n".join(rows)
 
@@ -347,8 +392,9 @@ def main():
         .replace("{{RECENT_TABLE}}", recent_table)
         .replace("{{MONTHLY_LINE}}", f"![]({charts['monthly_line']})")
         .replace("{{CUMULATIVE_LINE}}", f"![]({charts['cumulative_line']})")
+        # 가로 배치용 작은 차트 URL 그대로 주입
         .replace("{{MONTHLY_LINE_SMALL_URL}}", charts['monthly_line_small'])
-    .replace("{{CUMULATIVE_LINE_SMALL_URL}}", charts['cumulative_line_small'])
+        .replace("{{CUMULATIVE_LINE_SMALL_URL}}", charts['cumulative_line_small'])
         .replace("{{ALGO_BAR}}", f"![]({charts['algo_bar']})")
         .replace("{{HOUR_BAR}}", f"![]({charts['hour_bar']})")
         .replace("{{STREAK}}", str(streak))
