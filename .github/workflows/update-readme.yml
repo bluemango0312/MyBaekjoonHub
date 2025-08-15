@@ -1,16 +1,15 @@
 name: Update README
 
 on:
-  workflow_dispatch:            # 수동 실행 추가
+  workflow_dispatch:
   push:
     branches: [ main ]
     paths:
       - "code/**"
       - "review/**"
-      - "README.template.md"
       - "scripts/**"
   schedule:
-    - cron: "15 0 * * *"        # UTC 00:15 = KST 09:15 (±10분 지터 감안)
+    - cron: "15 0 * * *"  # UTC 00:15 = KST 09:15
 
 permissions:
   contents: write
@@ -21,7 +20,6 @@ concurrency:
 
 jobs:
   build:
-    if: ${{ github.ref == 'refs/heads/main' }}   # 기본브랜치 보호
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -31,13 +29,24 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Generate README
+      - name: Debug tree
         run: |
-          set -e
-          python scripts/build_readme.py
-          echo "==== Changed files ===="
-          git status --porcelain || true
-          git diff --name-only || true
+          echo "::group::root"; ls -al; echo "::endgroup::"
+          echo "::group::scripts"; ls -al scripts || true; echo "::endgroup::"
+
+      - name: Install deps (if any)
+        run: |
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          if [ -f scripts/requirements.txt ]; then pip install -r scripts/requirements.txt; fi
+
+      - name: Prepare template (fallback copy to root)
+        run: |
+          if [ -f scripts/README.template.md ] && [ ! -f README.template.md ]; then
+            cp scripts/README.template.md README.template.md
+          fi
+
+      - name: Generate README
+        run: python scripts/analyze.py
 
       - name: Commit & Push if changed
         run: |
@@ -48,5 +57,5 @@ jobs:
             git commit -m "chore: auto-update dashboard [skip ci]"
             git push
           else
-            echo "No README changes. Skipping commit."
+            echo "No README changes."
           fi
