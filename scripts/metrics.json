@@ -1,39 +1,42 @@
 {
-  "total": 24,
+  "total": 26,
   "tiers": {
-    "Silver": 22,
+    "Silver": 24,
     "Bronze": 2
   },
   "months": {
     "2025-07": 16,
-    "2025-08": 8
+    "2025-08": 10
   },
   "algo": {
-    "TwoPointers": 21,
-    "DFS": 2,
+    "DFS": 4,
+    "TwoPointers": 23,
+    "Greedy": 1,
+    "Sorting": 1,
     "DP": 1,
     "BFS": 1
   },
   "hours": {
+    "16": 1,
+    "18": 5,
     "23": 8,
     "17": 3,
     "0": 1,
     "19": 4,
-    "18": 4,
     "3": 2,
     "22": 1,
     "2": 1
   },
   "weekday": {
+    "4": 6,
+    "3": 6,
     "2": 4,
     "0": 3,
     "6": 4,
-    "4": 5,
-    "3": 5,
     "1": 2,
     "5": 1
   },
-  "avg_recent_tier": 1.894736842105263,
+  "avg_recent_tier": 1.9,
   "challenge_index": -0.02,
-  "streak": 0
+  "streak": 3
 }
