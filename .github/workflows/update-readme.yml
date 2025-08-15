@@ -1,6 +1,7 @@
 name: Update README
 
 on:
+  workflow_dispatch:            # 수동 실행 추가
   push:
     branches: [ main ]
     paths:
@@ -9,29 +10,43 @@ on:
       - "README.template.md"
       - "scripts/**"
   schedule:
-    - cron: "15 0 * * *"  # KST 오전 9:15에 맞추려면 cron은 UTC 기준(0시=KST 09시)
+    - cron: "15 0 * * *"        # UTC 00:15 = KST 09:15 (±10분 지터 감안)
 
 permissions:
   contents: write
 
+concurrency:
+  group: update-readme
+  cancel-in-progress: true
+
 jobs:
   build:
+    if: ${{ github.ref == 'refs/heads/main' }}   # 기본브랜치 보호
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # git 로그로 날짜 뽑으려면 전체 히스토리 필요
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+
       - name: Generate README
-        run: python scripts/build_readme.py
+        run: |
+          set -e
+          python scripts/build_readme.py
+          echo "==== Changed files ===="
+          git status --porcelain || true
+          git diff --name-only || true
+
       - name: Commit & Push if changed
         run: |
           if ! git diff --quiet README.md; then
-            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git config user.name "github-actions[bot]"
             git add README.md
             git commit -m "chore: auto-update dashboard [skip ci]"
             git push
+          else
+            echo "No README changes. Skipping commit."
           fi
