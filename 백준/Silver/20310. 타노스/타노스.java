@@ -1,8 +1,3 @@
-// 0과 1로 이루어진 문자열 S
-// 0의 개수 & 1의 개수 모두 짝수
-// 0 절반, 1 절반 제거
-// 가능한 문자열 중 사전순으로 가장 빠른 것
-
 import java.io.*;
 import java.util.*;
 
@@ -11,16 +6,55 @@ public class Main {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		char[] S = br.readLine().toCharArray();
 
-		// 0이 앞에 오도록 오름차순 정렬
-		Arrays.sort(S);
+		List<Character> list = new ArrayList<>();
+		for (char c : S) {
+			list.add(c);
+		}
+
+		int zeroCnt = 0, oneCnt = 0;
+
+		// 각 개수 세기
+		for (int i = 0; i < list.size(); i++) {
+			if (list.get(i) == '0') {
+				zeroCnt++;
+			} else {
+				oneCnt++;
+			}
+		}
+
+		int currentZeroCnt = 0, currentOneCnt = 0;
+		int i = 0;
+
+		if (oneCnt != 0) {
+			while (i < list.size()) {
+				if (list.get(i) == '1' && currentOneCnt < oneCnt / 2) {
+					list.remove(i);
+					currentOneCnt++;
+				} else {
+					i++;
+				}
+			}
+		}
+
+		i = list.size() - 1;
+
+		if (zeroCnt != 0) {
+			while (i >= 0) {
+				if (list.get(i) == '0' && currentZeroCnt < zeroCnt / 2) {
+					list.remove(i);
+					currentZeroCnt++;
+				}
+
+				i--;
+			}
+		}
 
 		StringBuilder sb = new StringBuilder();
 
-		// 0과 1 절반 삭제 후 저장
-		for (int i = 0; i < S.length; i += 2) {
-			sb.append(S[i]);
+		for (int j = 0; j < list.size(); j++) {
+			sb.append(list.get(j));
 		}
-		
+
 		System.out.println(sb);
 	}
 }
