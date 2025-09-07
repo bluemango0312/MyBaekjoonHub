@@ -13,7 +13,6 @@
     "TwoPointers": 23,
     "Greedy": 1,
     "Sorting": 1,
-    "DP": 1,
     "BFS": 1
   },
   "hours": {
@@ -36,7 +35,8 @@
     "1": 2,
     "5": 1
   },
-  "avg_recent_tier": 1.9,
-  "challenge_index": -0.02,
-  "streak": 3
+  "avg_recent_tier": 2.0,
+  "challenge_index": 0.08,
+  "streak_today": 0,
+  "streak_recent": 3
 }

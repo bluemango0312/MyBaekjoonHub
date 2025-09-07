@@ -2,7 +2,7 @@
 """
 MyBaekjoonHub 분석 스크립트 (루트 README 자동 생성)
 - 전 폴더 재귀 탐색
-- git 로그 기반 날짜/시간/요일 집계
+- git 로그 기반 날짜/시간/요일 집계 (KST 기준)
 - 알고리즘 키워드 추정
 - 파스텔/라운드/SVG 차트(QuickChart)
 - 최근 30일 평균 티어/도전지수, 알고리즘 트렌드 비교
@@ -14,42 +14,51 @@ from collections import Counter
 from pathlib import Path
 from urllib.parse import quote
 
+# 경로 설정
 BASE = Path(__file__).resolve().parent.parent
 TEMPLATE = BASE / "scripts" / "README.template.md"
 OUTPUT = BASE / "README.md"
 METRICS = BASE / "scripts" / "metrics.json"
 
-ALLOWED_EXT = (".java", ".kt", ".py", ".cpp", ".c", ".cc")
-TIER_NAMES = {"Bronze":"B", "Silver":"S", "Gold":"G", "Platinum":"P", "Diamond":"D"}
-TIER_SCORE = {"Bronze":1, "Silver":2, "Gold":3, "Platinum":4, "Diamond":5}
+# 타임존: KST 고정
+KST = datetime.timezone(datetime.timedelta(hours=9))
 
-# 제목/ID 추출용 정규식
-ID_PAT    = re.compile(r'(?P<id>\d{3,6})', re.UNICODE)
-# 숫자 다음 임의의 구분자들 이후를 제목으로 간주 (전각 포함)
+# 확장자/티어 매핑
+ALLOWED_EXT = (".java", ".kt", ".py", ".cpp", ".c", ".cc")
+TIER_NAMES = {"Bronze": "B", "Silver": "S", "Gold": "G", "Platinum": "P", "Diamond": "D"}
+TIER_SCORE = {"Bronze": 1, "Silver": 2, "Gold": 3, "Platinum": 4, "Diamond": 5}
+
+# 파일명에서 ID/제목 추출
+ID_PAT = re.compile(r'(?P<id>\d{3,6})', re.UNICODE)
 TITLE_PAT = re.compile(r'^\s*\d{3,6}\D+(.*)$', re.UNICODE)
 
+# 알고리즘 패턴(완화 버전)
 ALGOS = {
-    "BFS": [r"Queue<", r"ArrayDeque<", r"LinkedList<", r"\.offer\(", r"while\s*\(\s*!\s*queue\.isEmpty\("],
-    "DFS": [r"void\s+dfs\(", r"\bdfs\(", r"Stack<"],
-    "DP": [r"\bdp\s*\[", r"memo", r"cache", r"Arrays\.fill\(", r"long\[\]"],
-    "BinarySearch": [r"binarySearch", r"while\s*\(\s*low\s*<=\s*high\)", r"upperBound", r"lowerBound"],
-    "TwoPointers": [r"while\s*\(\s*i\s*<\s*j\)", r"\bi\s*\+\+", r"\bj\s*--"],
-    "Greedy": [r"PriorityQueue<", r"Collections\.sort\(", r"Arrays\.sort\(", r"comparator"],
+    "BFS": [
+        r"Queue<", r"ArrayDeque<", r"LinkedList<",
+        r"\.(offer|poll|peek)\(",
+        r"while\s*\(\s*!\s*[A-Za-z_]\w*\s*\.\s*isEmpty\s*\("
+    ],
+    "DFS": [r"\bvoid\s+dfs\s*\(", r"\bdfs\s*\(", r"Stack<"],
+    "DP": [r"\bdp\s*\[", r"\bmemo\b", r"\bcache\b", r"Arrays\.fill\("],
+    "BinarySearch": [r"binarySearch", r"while\s*\(\s*low\s*<=\s*high\s*\)"],
+    "TwoPointers": [r"while\s*\(\s*i\s*<\s*j\s*\)", r"\bi\s*\+\+;?", r"\bj\s*--;?"],
+    "Greedy": [r"PriorityQueue<", r"(Collections|Arrays)\.sort\(", r"comparator"],
     "StackQueue": [r"Stack<", r"Deque<", r"Queue<"],
     "Heap": [r"PriorityQueue<"],
-    "Sorting": [r"Arrays\.sort\(", r"Collections\.sort\("],
-    "Graph": [r"ArrayList<.*>\[\]", r"\badj", r"edges", r"\bgraph\b"],
-    "Tree": [r"TreeSet<", r"TreeMap<", r"segment", r"Fenwick", r"binary\s*tree"],
+    "Sorting": [r"(Collections|Arrays)\.sort\("],
+    "Graph": [r"ArrayList<.*>\[\]", r"\badj\b", r"\bedges\b", r"\bgraph\b"],
+    "Tree": [r"Tree(Set|Map)<", r"\bbinary\s*tree\b", r"\bsegment\b", r"\bFenwick\b"],
 }
 
 # 파스텔 팔레트
 PALETTE = ["#CFE3FF", "#AFCBFF", "#8FB5FF", "#6D9EFF", "#4D86F5", "#2E6DDB"]
 
-# 영어 알고리즘 키 → 한글 라벨
+# 한국어 라벨
 ALGO_LABELS = {
-    "BFS":"BFS", "DFS":"DFS", "DP":"DP", "BinarySearch":"이분탐색",
-    "TwoPointers":"투포인터", "Greedy":"그리디", "StackQueue":"스택/큐",
-    "Heap":"힙", "Sorting":"정렬", "Graph":"그래프", "Tree":"트리"
+    "BFS": "BFS", "DFS": "DFS", "DP": "DP", "BinarySearch": "이분탐색",
+    "TwoPointers": "투포인터", "Greedy": "그리디", "StackQueue": "스택/큐",
+    "Heap": "힙", "Sorting": "정렬", "Graph": "그래프", "Tree": "트리"
 }
 
 def _normalize(s: str) -> str:
@@ -57,9 +66,9 @@ def _normalize(s: str) -> str:
     if not s:
         return ""
     return (
-        s.replace("（","(").replace("）",")").replace("．",".")
-         .replace("\u200b","").replace("\u2009"," ").replace("\u200a"," ")
-         .replace("\u2002"," ").replace("\u2003"," ").replace("\u2060","").replace("\ufeff","")
+        s.replace("（", "(").replace("）", ")").replace("．", ".")
+         .replace("\u200b", "").replace("\u2009", " ").replace("\u200a", " ")
+         .replace("\u2002", " ").replace("\u2003", " ").replace("\u2060", "").replace("\ufeff", "")
          .strip()
     )
 
@@ -103,7 +112,6 @@ def build_charts(month_counts, cum_points, algo_counts, hour_counts):
         }]},
         "options": base_opts()
     }
-    # Y축 완전 숨김 (겹침 방지)
     cum_opt = cumulative_line["options"]
     cum_opt["scales"]["y"]["display"] = False
     cum_opt["scales"]["y"]["ticks"]["display"] = False
@@ -145,7 +153,6 @@ def build_charts(month_counts, cum_points, algo_counts, hour_counts):
         "cumulative_line": quickchart_svg(cumulative_line, w=360, h=140),
         "algo_bar": quickchart_svg(algo_bar, w=360, h=180),
         "hour_bar": quickchart_svg(hour_bar, w=360, h=140),
-        # 작은 버전(가로 배치용)
         "monthly_line_small": quickchart_svg(monthly_line, w=250, h=130),
         "cumulative_line_small": quickchart_svg(cumulative_line, w=250, h=130),
     }
@@ -166,7 +173,7 @@ def build_compare_bar(labels, a_data, b_data, a_label="최근(%)", b_label="전�
     return quickchart_svg(cfg, w=360, h=180)
 
 def build_weekday_bar(weekday_counts):
-    labels = ["월","화","수","목","금","토","일"]
+    labels = ["월", "화", "수", "목", "금", "토", "일"]
     data = [weekday_counts.get(i, 0) for i in range(7)]
     cfg = {
         "type": "bar",
@@ -178,18 +185,26 @@ def build_weekday_bar(weekday_counts):
     }
     return quickchart_svg(cfg, w=360, h=140)
 
-def avg(lst): return sum(lst)/len(lst) if lst else 0.0
+def avg(lst): 
+    return sum(lst) / len(lst) if lst else 0.0
 
 def git_log_timestamp(path: Path):
     try:
-        ts = subprocess.check_output(["git","log","-1","--format=%ct","--",str(path)], text=True, cwd=str(BASE)).strip()
+        ts = subprocess.check_output(
+            ["git", "log", "-1", "--format=%ct", "--", str(path)],
+            text=True, cwd=str(BASE)
+        ).strip()
         return int(ts) if ts else None
     except Exception:
         return None
 
+def to_kst(ts: int) -> datetime.datetime:
+    # git log epoch(sec) -> UTC -> KST
+    return datetime.datetime.fromtimestamp(ts, tz=datetime.timezone.utc).astimezone(KST)
+
 def git_date(path: Path):
     ts = git_log_timestamp(path)
-    return datetime.datetime.fromtimestamp(ts) if ts else None
+    return to_kst(ts) if ts else None
 
 def extract_id_title(name: str):
     """파일명 또는 폴더명에서 문제 ID와 제목 추출"""
@@ -201,7 +216,6 @@ def extract_id_title(name: str):
     m_title = TITLE_PAT.match(base)
     title = _normalize(m_title.group(1)) if m_title else None
 
-    # 폴백: 숫자 제거한 나머지, 그래도 없으면 base 자체
     if not title:
         stripped = _normalize(re.sub(r'^\s*\d{3,6}\D+', '', base))
         title = stripped or base
@@ -228,7 +242,7 @@ def walk_solutions():
     items = []
     for root, _, files in os.walk(BASE):
         root_posix = Path(root).as_posix()
-        if any(skip in root_posix for skip in ["/.git","/.github","/venv","/.venv","/__pycache__"]):
+        if any(skip in root_posix for skip in ["/.git", "/.github", "/venv", "/.venv", "/__pycache__"]):
             continue
 
         rel_parts = Path(root).relative_to(BASE).parts
@@ -241,20 +255,17 @@ def walk_solutions():
 
             prob_id, title = extract_id_title(fn)
 
-            # 파일명에서 못 찾으면 상위 폴더명으로 보강
             if (not prob_id or not title) and rel_parts:
                 pid2, title2 = extract_id_title(rel_parts[-1])
                 prob_id = prob_id or pid2
-                # 제목 비면 폴더명을 제목으로
                 if not title:
                     title = _normalize(Path(rel_parts[-1]).stem)
 
-            # ID 없으면 스킵
             if not prob_id:
                 continue
 
             file_path = Path(root, fn)
-            d = git_date(file_path) or datetime.datetime.min
+            d = git_date(file_path) or datetime.datetime.min.replace(tzinfo=KST)
 
             algo_hits = Counter()
             try:
@@ -271,7 +282,7 @@ def walk_solutions():
                 "tier_code": tier_letter or "U",
                 "tier": tier_word or "Unknown",
                 "date": d,
-                "ts": int(d.timestamp()) if d != datetime.datetime.min else None,
+                "ts": int(d.timestamp()) if d != datetime.datetime.min.replace(tzinfo=KST) else None,
                 "algos": algo_hits,
                 "lang": file_path.suffix.lstrip(".").lower()
             })
@@ -286,7 +297,7 @@ def walk_solutions():
             folder = Path(root)
             readme = folder / "README.md"
             target = readme if readme.exists() else folder
-            d = git_date(target) or datetime.datetime.min
+            d = git_date(target) or datetime.datetime.min.replace(tzinfo=KST)
             items.append({
                 "path": target.relative_to(BASE).as_posix(),
                 "file": target.name if target.is_file() else "",
@@ -295,95 +306,143 @@ def walk_solutions():
                 "tier_code": tier_letter or "U",
                 "tier": tier_word or "Unknown",
                 "date": d,
-                "ts": int(d.timestamp()) if d != datetime.datetime.min else None,
+                "ts": int(d.timestamp()) if d != datetime.datetime.min.replace(tzinfo=KST) else None,
                 "algos": Counter(),
                 "lang": ""
             })
     return items
 
-def month_key(dt): return dt.strftime("%Y-%m") if dt != datetime.datetime.min else None
+def month_key(dt): 
+    return dt.strftime("%Y-%m") if dt != datetime.datetime.min.replace(tzinfo=KST) else None
 
 def make_calendar(dates, days=14):
-    today = datetime.date.today(); s = set(dates); cells = []
+    today = datetime.datetime.now(KST).date()
+    s = set(dates)
+    cells = []
     for i in range(days):
-        day = today - datetime.timedelta(days=days-1-i)
+        day = today - datetime.timedelta(days=days - 1 - i)
         cells.append("█" if day in s else "░")
     return "".join(cells) + f" (최근 {days}일)"
 
 def render_table(items, n=10):
-    rows = ["| No. | Problem | Tier | Link | Date |","|---:|:-------|:-----|:-----|:-----|"]
+    rows = ["| No. | Problem | Tier | Link | Date |", "|---:|:-------|:-----|:-----|:-----|"]
     for it in items[:n]:
         link = f"[📄]({it['path']})" if it["path"] else "-"
-        date_str = it["date"].strftime("%Y-%m-%d") if it["date"] != datetime.datetime.min else "-"
-        title = (it.get("title") or "").replace("|","¦").strip()
+        date_str = it["date"].strftime("%Y-%m-%d") if it["date"] != datetime.datetime.min.replace(tzinfo=KST) else "-"
+        title = (it.get("title") or "").replace("|", "¦").strip()
         if not title:
             title = f"BOJ {it['id']}"
         rows.append(f"| {it['id']} | {title} | {it['tier']} | {link} | {date_str} |")
     return "\n".join(rows)
 
 def main():
+    # 풀이 수집 및 정렬
     sols = sorted(walk_solutions(), key=lambda x: x["date"], reverse=True)
     total = len(sols)
 
+    # 티어 분포
     tiers_cnt = Counter([s["tier"] for s in sols])
-    order = ["Diamond","Platinum","Gold","Silver","Bronze","Unknown"]
+    order = ["Diamond", "Platinum", "Gold", "Silver", "Bronze", "Unknown"]
     tier_lines = [f"- {t}: **{tiers_cnt[t]}**" for t in order if tiers_cnt[t]]
 
-    dates = [s["date"].date() for s in sols if s["date"] != datetime.datetime.min]
+    # 날짜/달/시/요일 집계 (KST)
+    dates = [s["date"].date() for s in sols if s["date"] != datetime.datetime.min.replace(tzinfo=KST)]
     cal = make_calendar(dates)
 
     months = [month_key(s["date"]) for s in sols if month_key(s["date"])]
     month_counts = dict(sorted(Counter(months).items()))
 
-    cum_points = []; cum = 0
+    cum_points = []
+    cum = 0
     for m, v in month_counts.items():
-        cum += v; cum_points.append((m, cum))
+        cum += v
+        cum_points.append((m, cum))
 
-    hour_counts = Counter(); weekday_counts = Counter()
+    hour_counts = Counter()
+    weekday_counts = Counter()
     for s in sols:
         if s["ts"]:
-            dt = datetime.datetime.fromtimestamp(s["ts"])
-            hour_counts[dt.hour] += 1; weekday_counts[dt.weekday()] += 1
+            dt = datetime.datetime.fromtimestamp(s["ts"], tz=KST)
+            hour_counts[dt.hour] += 1
+            weekday_counts[dt.weekday()] += 1
 
+    # 알고리즘 카운트
     algo_total_all = Counter()
-    for s in sols: algo_total_all.update(s["algos"])
+    for s in sols:
+        algo_total_all.update(s["algos"])
     algo_top8 = Counter(dict(algo_total_all.most_common(8)))
 
-    weakness = sorted([(t, algo_total_all.get(t,0)) for t in ["DP","BinarySearch","TwoPointers","Greedy"]],
-                      key=lambda x: x[1])[:3]
-    weakness_lines = [f"- {w[0]} 비중 낮음" for w in weakness]
+    # 보완 추천 계산(값이 전부 0인 경우 메시지)
+    present = {k: v for k, v in algo_total_all.items() if v > 0}
+    if present:
+        target = ["BFS", "DFS", "DP", "BinarySearch", "TwoPointers", "Greedy", "Heap", "Sorting", "Graph", "Tree", "StackQueue"]
+        ranked = sorted([(k, present.get(k, 0)) for k in target], key=lambda x: x[1])
+        weakness_lines = [f"- {ALGO_LABELS.get(k, k)} 비중 낮음" for k, _ in ranked[:3]]
+    else:
+        weakness_lines = ["- 코드에서 알고리즘 단서를 찾지 못함(패턴 개선 또는 주석/코드 키워드 확인 필요)"]
 
-    now_dt = datetime.datetime.now()
-    recent_sols = [s for s in sols if s["date"] != datetime.datetime.min and s["date"] >= now_dt - datetime.timedelta(days=30)]
-    def tier_scores(items): return [TIER_SCORE.get(s["tier"], 0) for s in items]
+    # 평균 티어/도전 지수 (최근 30일, KST 기준)
+    now_dt = datetime.datetime.now(KST)
+    recent_sols = [s for s in sols if s["date"] != datetime.datetime.min.replace(tzinfo=KST) and s["date"] >= now_dt - datetime.timedelta(days=30)]
+
+    def tier_scores(items):
+        return [TIER_SCORE.get(s["tier"], 0) for s in items]
+
     avg_all = avg(tier_scores(sols))
     avg_recent = avg(tier_scores(recent_sols))
-    challenge_index = round(avg_recent - avg_all, 2); avg_recent_disp = f"{avg_recent:.2f}"
+    challenge_index = round(avg_recent - avg_all, 2)
+    avg_recent_disp = f"{avg_recent:.2f}"
 
+    # 최근/전체 알고리즘 비율 비교
     algo_total_recent = Counter()
-    for s in recent_sols: algo_total_recent.update(s["algos"])
-    compare_keys = [k for k,_ in (algo_total_all + algo_total_recent).most_common(12)][:8]
-    all_sum = sum(algo_total_all.values()) or 1; rc_sum = sum(algo_total_recent.values()) or 1
-    all_ratio = [round(100*algo_total_all.get(k,0)/all_sum,1) for k in compare_keys]
-    rc_ratio  = [round(100*algo_total_recent.get(k,0)/rc_sum,1) for k in compare_keys]
+    for s in recent_sols:
+        algo_total_recent.update(s["algos"])
 
+    compare_keys = [k for k, _ in (algo_total_all + algo_total_recent).most_common(12)][:8]
+    all_sum = sum(algo_total_all.values()) or 1
+    rc_sum = sum(algo_total_recent.values()) or 1
+    all_ratio = [round(100 * algo_total_all.get(k, 0) / all_sum, 1) for k in compare_keys]
+    rc_ratio = [round(100 * algo_total_recent.get(k, 0) / rc_sum, 1) for k in compare_keys]
+
+    # 차트 생성
     charts = build_charts(month_counts, cum_points, algo_top8, hour_counts)
     algo_trend_url = build_compare_bar(compare_keys, rc_ratio, all_ratio)
     weekday_bar_url = build_weekday_bar(weekday_counts)
     recent_table = render_table(sols, 10)
 
+    # streak 계산
+    unique_days = sorted(set(dates))
+    # 오늘부터 연속
+    current_streak = 0
+    d = datetime.datetime.now(KST).date()
+    while d in unique_days:
+        current_streak += 1
+        d -= datetime.timedelta(days=1)
+    # 최근 끊기지 않은 연속(마지막 활동일 기준)
+    recent_streak = 0
+    if unique_days:
+        d = max(unique_days)
+        recent_streak = 1
+        while (d - datetime.timedelta(days=1)) in unique_days:
+            recent_streak += 1
+            d -= datetime.timedelta(days=1)
+
+    # 메트릭 저장
     metrics = {
-        "total": total, "tiers": tiers_cnt, "months": month_counts,
-        "algo": algo_total_all, "hours": hour_counts, "weekday": weekday_counts,
-        "avg_recent_tier": avg_recent, "challenge_index": challenge_index
+        "total": total,
+        "tiers": tiers_cnt,
+        "months": month_counts,
+        "algo": algo_total_all,
+        "hours": hour_counts,
+        "weekday": weekday_counts,
+        "avg_recent_tier": avg_recent,
+        "challenge_index": challenge_index,
+        "streak_today": current_streak,
+        "streak_recent": recent_streak,
     }
-
-    unique_days = sorted(set(dates)); streak = 0; d = datetime.date.today()
-    while d in unique_days: streak += 1; d = d - datetime.timedelta(days=1)
-    metrics["streak"] = streak
-
     METRICS.write_text(json.dumps(metrics, ensure_ascii=False, indent=2), encoding="utf-8")
 
+    # 템플릿 렌더링
     tpl = TEMPLATE.read_text(encoding="utf-8")
     out = (tpl
         .replace("{{TOTAL_SOLVED}}", str(total))
@@ -392,19 +451,19 @@ def main():
         .replace("{{RECENT_TABLE}}", recent_table)
         .replace("{{MONTHLY_LINE}}", f"![]({charts['monthly_line']})")
         .replace("{{CUMULATIVE_LINE}}", f"![]({charts['cumulative_line']})")
-        # 가로 배치용 작은 차트 URL 그대로 주입
         .replace("{{MONTHLY_LINE_SMALL_URL}}", charts['monthly_line_small'])
         .replace("{{CUMULATIVE_LINE_SMALL_URL}}", charts['cumulative_line_small'])
         .replace("{{ALGO_BAR}}", f"![]({charts['algo_bar']})")
         .replace("{{HOUR_BAR}}", f"![]({charts['hour_bar']})")
-        .replace("{{STREAK}}", str(streak))
+        # 표시용 streak은 '최근 끊기지 않은 연속일수'로 교체
+        .replace("{{STREAK}}", str(recent_streak))
         .replace("{{WEAKNESSES}}", "\n".join(weakness_lines) if weakness_lines else "_no data_")
         .replace("{{RECENT_AVG_TIER}}", avg_recent_disp)
         .replace("{{CHALLENGE_INDEX}}", f"{challenge_index:+.2f}")
         .replace("{{ALGO_TREND_BAR}}", f"![]({algo_trend_url})")
         .replace("{{WEEKDAY_BAR}}", f"![]({weekday_bar_url})")
     )
-    out += f"\n\n<!-- generated-at: {datetime.datetime.now().isoformat(timespec='seconds')} -->\n"
+    out += f"\n\n<!-- generated-at: {datetime.datetime.now(KST).isoformat(timespec='seconds')} -->\n"
     OUTPUT.write_text(out, encoding="utf-8")
 
 if __name__ == "__main__":
