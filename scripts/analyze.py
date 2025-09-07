@@ -456,7 +456,7 @@ def main():
         .replace("{{ALGO_BAR}}", f"![]({charts['algo_bar']})")
         .replace("{{HOUR_BAR}}", f"![]({charts['hour_bar']})")
         # 표시용 streak은 '최근 끊기지 않은 연속일수'로 교체
-        .replace("{{STREAK}}", str(recent_streak))
+        .replace("{{STREAK}}", str(current_streak))
         .replace("{{WEAKNESSES}}", "\n".join(weakness_lines) if weakness_lines else "_no data_")
         .replace("{{RECENT_AVG_TIER}}", avg_recent_disp)
         .replace("{{CHALLENGE_INDEX}}", f"{challenge_index:+.2f}")
