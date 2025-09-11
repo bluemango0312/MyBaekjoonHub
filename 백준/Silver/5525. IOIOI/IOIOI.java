@@ -7,28 +7,28 @@ public class Main {
 		int N = Integer.parseInt(br.readLine());
 		int M = Integer.parseInt(br.readLine());
 		String input = br.readLine();
-		String str = "IOI";
-		int result = 0;
-
-		// 대상 문자열 만들기
-		for (int i = 1; i < N; i++) {
-			str += "OI";
-		}
 
 		// 비교
-		for (int i = 0; i <= input.length() - str.length(); i++) {
-			String partStr = "";
+		int cnt = 0;
+		int idx = 0;
+		int streak = 0; // 연속 개수
 
-			for (int j = 0; j < str.length(); j++) {
-				partStr += input.charAt(i + j);
-			}
+		while (idx < M - 2) {
+			if (input.substring(idx, idx + 3).equals("IOI")) {
+				streak++;
+				idx += 2;
 
-			if (partStr.equals(str)) {
-				result++;
+				if (streak == N) {
+					cnt++;
+					streak--;
+				}
+			} else {
+				idx++;
+				streak = 0;
 			}
 		}
 
-		System.out.println(result);
+		System.out.println(cnt);
 	}
 
 }
