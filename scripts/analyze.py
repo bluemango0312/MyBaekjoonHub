@@ -412,13 +412,16 @@ def main():
 
     # streak 계산
     unique_days = sorted(set(dates))
-    # 오늘부터 연속
+    yesterday = datetime.datetime.now(KST).date() - datetime.timedelta(days=1)
+
+    # 어제부터 과거로 연속 일수 계산
     current_streak = 0
-    d = datetime.datetime.now(KST).date()
+    d = yesterday
     while d in unique_days:
         current_streak += 1
         d -= datetime.timedelta(days=1)
-    # 최근 끊기지 않은 연속(마지막 활동일 기준)
+
+    # 최근 끊기지 않은 연속(마지막 활동일 기준) 계산은 그대로 유지
     recent_streak = 0
     if unique_days:
         d = max(unique_days)
