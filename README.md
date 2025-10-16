@@ -5,8 +5,8 @@
 
 ### ✦ 요약
 • 총 풀이: **123**  
-• 연속 풀이: **4일**  
-█░░█░░░░░█████ (최근 14일)
+• 연속 풀이: **5일**  
+░░█░░░░░█████░ (최근 14일)
 
 ---
 
@@ -27,7 +27,7 @@
 
 | 알고리즘 상위 분포 | 알고리즘 트렌드(최근 30일 ↔︎ 전체) |
 |---|---|
-| ![](https://quickchart.io/chart?c=%7B%22type%22%3A%20%22bar%22%2C%20%22data%22%3A%20%7B%22labels%22%3A%20%5B%22%ED%88%AC%ED%8F%AC%EC%9D%B8%ED%84%B0%22%2C%20%22%EA%B7%B8%EB%A6%AC%EB%94%94%22%2C%20%22%EC%A0%95%EB%A0%AC%22%2C%20%22BFS%22%2C%20%22%EC%8A%A4%ED%83%9D/%ED%81%90%22%2C%20%22DFS%22%2C%20%22DP%22%2C%20%22%ED%8A%B8%EB%A6%AC%22%5D%2C%20%22datasets%22%3A%20%5B%7B%22label%22%3A%20%22%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98%20%EB%B9%88%EB%8F%84%22%2C%20%22data%22%3A%20%5B100%2C%2029%2C%2028%2C%2017%2C%2012%2C%209%2C%205%2C%202%5D%2C%20%22backgroundColor%22%3A%20%22%238FB5FF%22%2C%20%22borderRadius%22%3A%2010%2C%20%22borderSkipped%22%3A%20false%7D%5D%7D%2C%20%22options%22%3A%20%7B%22plugins%22%3A%20%7B%22legend%22%3A%20%7B%22display%22%3A%20false%7D%7D%2C%20%22layout%22%3A%20%7B%22padding%22%3A%206%7D%2C%20%22elements%22%3A%20%7B%22line%22%3A%20%7B%22tension%22%3A%200.35%2C%20%22borderWidth%22%3A%203%7D%2C%20%22point%22%3A%20%7B%22radius%22%3A%200%7D%7D%2C%20%22scales%22%3A%20%7B%22x%22%3A%20%7B%22grid%22%3A%20%7B%22color%22%3A%20%22rgba%280%2C0%2C0%2C0.06%29%22%7D%2C%20%22ticks%22%3A%20%7B%22font%22%3A%20%7B%22size%22%3A%209%7D%7D%7D%2C%20%22y%22%3A%20%7B%22grid%22%3A%20%7B%22color%22%3A%20%22rgba%280%2C0%2C0%2C0.06%29%22%7D%2C%20%22beginAtZero%22%3A%20true%2C%20%22ticks%22%3A%20%7B%22font%22%3A%20%7B%22size%22%3A%209%7D%7D%7D%7D%2C%20%22indexAxis%22%3A%20%22y%22%7D%7D&format=svg&devicePixelRatio=2&backgroundColor=transparent&width=360&height=180) | ![](https://quickchart.io/chart?c=%7B%22type%22%3A%20%22bar%22%2C%20%22data%22%3A%20%7B%22labels%22%3A%20%5B%22%ED%88%AC%ED%8F%AC%EC%9D%B8%ED%84%B0%22%2C%20%22%EA%B7%B8%EB%A6%AC%EB%94%94%22%2C%20%22%EC%A0%95%EB%A0%AC%22%2C%20%22BFS%22%2C%20%22%EC%8A%A4%ED%83%9D/%ED%81%90%22%2C%20%22DFS%22%2C%20%22DP%22%2C%20%22%ED%9E%99%22%5D%2C%20%22datasets%22%3A%20%5B%7B%22label%22%3A%20%22%EC%B5%9C%EA%B7%BC%28%25%29%22%2C%20%22data%22%3A%20%5B47.1%2C%2020.0%2C%2018.6%2C%205.7%2C%202.9%2C%200.0%2C%204.3%2C%201.4%5D%2C%20%22backgroundColor%22%3A%20%22%234D86F5%22%2C%20%22borderRadius%22%3A%2010%2C%20%22borderSkipped%22%3A%20false%7D%2C%20%7B%22label%22%3A%20%22%EC%A0%84%EC%B2%B4%28%25%29%22%2C%20%22data%22%3A%20%5B49.0%2C%2014.2%2C%2013.7%2C%208.3%2C%205.9%2C%204.4%2C%202.5%2C%200.5%5D%2C%20%22backgroundColor%22%3A%20%22%23CFE3FF%22%2C%20%22borderRadius%22%3A%2010%2C%20%22borderSkipped%22%3A%20false%7D%5D%7D%2C%20%22options%22%3A%20%7B%22plugins%22%3A%20%7B%22legend%22%3A%20%7B%22display%22%3A%20true%7D%7D%2C%20%22layout%22%3A%20%7B%22padding%22%3A%206%7D%2C%20%22elements%22%3A%20%7B%22line%22%3A%20%7B%22tension%22%3A%200.35%2C%20%22borderWidth%22%3A%203%7D%2C%20%22point%22%3A%20%7B%22radius%22%3A%200%7D%7D%2C%20%22scales%22%3A%20%7B%22x%22%3A%20%7B%22grid%22%3A%20%7B%22color%22%3A%20%22rgba%280%2C0%2C0%2C0.06%29%22%7D%2C%20%22ticks%22%3A%20%7B%22font%22%3A%20%7B%22size%22%3A%209%7D%7D%7D%2C%20%22y%22%3A%20%7B%22grid%22%3A%20%7B%22color%22%3A%20%22rgba%280%2C0%2C0%2C0.06%29%22%7D%2C%20%22beginAtZero%22%3A%20true%2C%20%22ticks%22%3A%20%7B%22font%22%3A%20%7B%22size%22%3A%209%7D%7D%7D%7D%7D%7D&format=svg&devicePixelRatio=2&backgroundColor=transparent&width=360&height=180) |
+| ![](https://quickchart.io/chart?c=%7B%22type%22%3A%20%22bar%22%2C%20%22data%22%3A%20%7B%22labels%22%3A%20%5B%22%ED%88%AC%ED%8F%AC%EC%9D%B8%ED%84%B0%22%2C%20%22%EA%B7%B8%EB%A6%AC%EB%94%94%22%2C%20%22%EC%A0%95%EB%A0%AC%22%2C%20%22BFS%22%2C%20%22%EC%8A%A4%ED%83%9D/%ED%81%90%22%2C%20%22DFS%22%2C%20%22DP%22%2C%20%22%ED%8A%B8%EB%A6%AC%22%5D%2C%20%22datasets%22%3A%20%5B%7B%22label%22%3A%20%22%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98%20%EB%B9%88%EB%8F%84%22%2C%20%22data%22%3A%20%5B100%2C%2029%2C%2028%2C%2017%2C%2012%2C%209%2C%205%2C%202%5D%2C%20%22backgroundColor%22%3A%20%22%238FB5FF%22%2C%20%22borderRadius%22%3A%2010%2C%20%22borderSkipped%22%3A%20false%7D%5D%7D%2C%20%22options%22%3A%20%7B%22plugins%22%3A%20%7B%22legend%22%3A%20%7B%22display%22%3A%20false%7D%7D%2C%20%22layout%22%3A%20%7B%22padding%22%3A%206%7D%2C%20%22elements%22%3A%20%7B%22line%22%3A%20%7B%22tension%22%3A%200.35%2C%20%22borderWidth%22%3A%203%7D%2C%20%22point%22%3A%20%7B%22radius%22%3A%200%7D%7D%2C%20%22scales%22%3A%20%7B%22x%22%3A%20%7B%22grid%22%3A%20%7B%22color%22%3A%20%22rgba%280%2C0%2C0%2C0.06%29%22%7D%2C%20%22ticks%22%3A%20%7B%22font%22%3A%20%7B%22size%22%3A%209%7D%7D%7D%2C%20%22y%22%3A%20%7B%22grid%22%3A%20%7B%22color%22%3A%20%22rgba%280%2C0%2C0%2C0.06%29%22%7D%2C%20%22beginAtZero%22%3A%20true%2C%20%22ticks%22%3A%20%7B%22font%22%3A%20%7B%22size%22%3A%209%7D%7D%7D%7D%2C%20%22indexAxis%22%3A%20%22y%22%7D%7D&format=svg&devicePixelRatio=2&backgroundColor=transparent&width=360&height=180) | ![](https://quickchart.io/chart?c=%7B%22type%22%3A%20%22bar%22%2C%20%22data%22%3A%20%7B%22labels%22%3A%20%5B%22%ED%88%AC%ED%8F%AC%EC%9D%B8%ED%84%B0%22%2C%20%22%EA%B7%B8%EB%A6%AC%EB%94%94%22%2C%20%22%EC%A0%95%EB%A0%AC%22%2C%20%22BFS%22%2C%20%22%EC%8A%A4%ED%83%9D/%ED%81%90%22%2C%20%22DFS%22%2C%20%22DP%22%2C%20%22%ED%9E%99%22%5D%2C%20%22datasets%22%3A%20%5B%7B%22label%22%3A%20%22%EC%B5%9C%EA%B7%BC%28%25%29%22%2C%20%22data%22%3A%20%5B46.4%2C%2020.3%2C%2018.8%2C%205.8%2C%202.9%2C%200.0%2C%204.3%2C%201.4%5D%2C%20%22backgroundColor%22%3A%20%22%234D86F5%22%2C%20%22borderRadius%22%3A%2010%2C%20%22borderSkipped%22%3A%20false%7D%2C%20%7B%22label%22%3A%20%22%EC%A0%84%EC%B2%B4%28%25%29%22%2C%20%22data%22%3A%20%5B49.0%2C%2014.2%2C%2013.7%2C%208.3%2C%205.9%2C%204.4%2C%202.5%2C%200.5%5D%2C%20%22backgroundColor%22%3A%20%22%23CFE3FF%22%2C%20%22borderRadius%22%3A%2010%2C%20%22borderSkipped%22%3A%20false%7D%5D%7D%2C%20%22options%22%3A%20%7B%22plugins%22%3A%20%7B%22legend%22%3A%20%7B%22display%22%3A%20true%7D%7D%2C%20%22layout%22%3A%20%7B%22padding%22%3A%206%7D%2C%20%22elements%22%3A%20%7B%22line%22%3A%20%7B%22tension%22%3A%200.35%2C%20%22borderWidth%22%3A%203%7D%2C%20%22point%22%3A%20%7B%22radius%22%3A%200%7D%7D%2C%20%22scales%22%3A%20%7B%22x%22%3A%20%7B%22grid%22%3A%20%7B%22color%22%3A%20%22rgba%280%2C0%2C0%2C0.06%29%22%7D%2C%20%22ticks%22%3A%20%7B%22font%22%3A%20%7B%22size%22%3A%209%7D%7D%7D%2C%20%22y%22%3A%20%7B%22grid%22%3A%20%7B%22color%22%3A%20%22rgba%280%2C0%2C0%2C0.06%29%22%7D%2C%20%22beginAtZero%22%3A%20true%2C%20%22ticks%22%3A%20%7B%22font%22%3A%20%7B%22size%22%3A%209%7D%7D%7D%7D%7D%7D&format=svg&devicePixelRatio=2&backgroundColor=transparent&width=360&height=180) |
 
 | 활동 시간대 | 요일 패턴 |
 |---|---|
@@ -48,8 +48,8 @@
 | 1463 | 1로 만들기 | Silver | [📄](백준/Silver/1463. 1로 만들기/1로 만들기.java) | 2025-10-11 |
 
 #### 학습 인사이트
-- 최근 30일 평균 티어: **1.71**
-- 도전 지수: **-0.13**
+- 최근 30일 평균 티어: **1.76**
+- 도전 지수: **-0.09**
 - 보완 추천  
 - 이분탐색 비중 낮음
 - 힙 비중 낮음
@@ -58,4 +58,4 @@
 <sub>자동 갱신 · GitHub Actions</sub>
 
 
-<!-- generated-at: 2025-10-15T11:05:00+09:00 -->
+<!-- generated-at: 2025-10-16T11:03:37+09:00 -->
