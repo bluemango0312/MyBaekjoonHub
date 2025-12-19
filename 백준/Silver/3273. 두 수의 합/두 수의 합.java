@@ -2,48 +2,37 @@ import java.io.*;
 import java.util.*;
 
 public class Main {
-	public static void main(String[] args) throws NumberFormatException, IOException {
+	public static void main(String[] args) throws IOException {
+		// 입력
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		int N = Integer.parseInt(br.readLine());
+		int n = Integer.parseInt(br.readLine());
 
+		int[] input = new int[n];
 		StringTokenizer st = new StringTokenizer(br.readLine());
-		int[] inputArray = new int[N];
-
-		for (int i = 0; i < N; i++) {
-			inputArray[i] = Integer.parseInt(st.nextToken());
+		for (int i = 0; i < n; i++) {
+			input[i] = Integer.parseInt(st.nextToken());
 		}
 
-		int M = Integer.parseInt(br.readLine());
+		long x = Long.parseLong(br.readLine()); // 합이 되어야 하는 수
 		int result = 0;
 
-		Arrays.sort(inputArray);
-		int limitIndex = -1;
+		// 오름차순 정렬
+		Arrays.sort(input);
 
-		for (int i = 0; i < N; i++) {
-			if (inputArray[i] > M) {
-				limitIndex = i;
-				break;
-			}
-		}
-
-		int sum = 0;
-
-		limitIndex = (limitIndex == -1) ? N : limitIndex;
-
+		// 투포인터로 찾기
 		int left = 0;
-		int right = N - 1;
+		int right = n - 1;
 
 		while (left < right) {
-			sum = inputArray[left] + inputArray[right];
+			int sum = input[left] + input[right];
 
-			if (sum > M) {
-				right--;
-			} else if (sum < M) {
+			if (sum < x) {
 				left++;
+			} else if (sum > x) {
+				right--;
 			} else {
 				result++;
 				left++;
-				right--;
 			}
 		}
 
