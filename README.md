@@ -58,4 +58,4 @@
 <sub>자동 갱신 · GitHub Actions</sub>
 
 
-<!-- generated-at: 2026-05-14T13:13:06+09:00 -->
+<!-- generated-at: 2026-05-15T13:18:16+09:00 -->
